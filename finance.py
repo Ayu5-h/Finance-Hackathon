@@ -46,22 +46,13 @@ def get_conversational_chain():
     Answer:
     """
 
-    model = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.3)
+    model = ChatGoogleGenerativeAI(model="gemini-pro",
+                                   temperature=0.3)
 
     prompt = PromptTemplate(template=prompt_template, input_variables=["context", "question"])
     chain = load_qa_chain(model, chain_type="stuff", prompt=prompt)
 
     return chain
-
-
-def fetch_from_wikipedia(user_question):
-    wiki_wiki = wikipediaapi.Wikipedia('en')
-    page = wiki_wiki.page(user_question)
-
-    if page.exists():
-        return page.summary
-    else:
-        return "Sorry, I couldn't find relevant information on Wikipedia."
 
 
 def user_input(user_question):
@@ -72,15 +63,12 @@ def user_input(user_question):
 
     chain = get_conversational_chain()
 
-    if not docs:  # If no relevant context found in PDF documents
-        return fetch_from_wikipedia(user_question)
-
     response = chain(
-        {"input_documents": docs, "question": user_question},
-        return_only_outputs=True
-    )
+        {"input_documents": docs, "question": user_question}
+        , return_only_outputs=True)
 
-    return response["output_text"]
+    print(response)
+    st.write("Reply: ", response["output_text"])
 
 
 def main():
@@ -90,10 +78,7 @@ def main():
     user_question = st.text_input("Ask any Question from the PDF Files or your financial doubts")
 
     if user_question:
-        response = user_input(user_question)
-        st.write("Reply: ", response)
-    else:
-        st.warning("Please enter a question.")
+        user_input(user_question)
 
     with st.sidebar:
         st.title("Menu:")
